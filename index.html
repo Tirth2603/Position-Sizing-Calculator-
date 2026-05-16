@@ -1,1 +1,201 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Position Sizer — NSE/BSE</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#f2f3f7;--card:#fff;--border:#e0e0eb;--text:#111;--muted:#999;--dim:#555;--r:#e53935;--rbg:rgba(229,57,53,.09);--g:#2e7d32;--gbg:rgba(46,125,50,.09);--sh:0 2px 10px rgba(0,0,0,.07)}
+[data-theme=dark]{--bg:#101014;--card:#1a1a24;--border:#28283a;--text:#eee;--muted:#555;--dim:#999;--r:#ef5350;--rbg:rgba(239,83,80,.09);--g:#4caf50;--gbg:rgba(76,175,80,.09);--sh:0 2px 10px rgba(0,0,0,.3)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-font-smoothing:antialiased}
+body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-serif;min-height:100vh;display:flex;justify-content:center;padding:40px 16px 60px;transition:background .3s,color .3s}
+.wrap{width:100%;max-width:440px}
+header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:32px}
+h1{font-family:'Outfit',sans-serif;font-size:clamp(30px,8vw,44px);font-weight:800;line-height:1.05;letter-spacing:-.02em}
+h1 span{color:var(--r)}
+.sub{font-size:11px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-top:6px}
+.thm-btn{background:var(--card);border:1.5px solid var(--border);border-radius:99px;padding:7px 14px;font-family:inherit;font-size:12px;font-weight:600;color:var(--dim);cursor:pointer;transition:all .2s;box-shadow:var(--sh);white-space:nowrap}
+.thm-btn:hover{border-color:var(--r);color:var(--r)}
+.lbl{font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.tog{display:flex;gap:6px;margin-bottom:16px}
+.tog button{flex:1;padding:10px;border-radius:8px;border:1.5px solid var(--border);background:var(--card);color:var(--muted);font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;box-shadow:var(--sh)}
+.tog button:hover{border-color:var(--r);color:var(--r)}
+.tog button.on{background:var(--r);border-color:var(--r);color:#fff;box-shadow:0 4px 14px var(--rbg)}
+.card{background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px;transition:border-color .2s,box-shadow .2s;box-shadow:var(--sh)}
+.card:focus-within{border-color:var(--r);box-shadow:0 0 0 3px var(--rbg)}
+.card-lbl{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.opt{font-size:9px;background:var(--bg);border:1px solid var(--border);color:var(--muted);padding:2px 6px;border-radius:4px}
+input[type=number]{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-family:inherit;font-size:22px;font-weight:700;outline:none;transition:border-color .2s;-moz-appearance:textfield}
+input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none}
+input:focus{border-color:var(--r)}
+input::placeholder{color:var(--border);font-size:16px;font-weight:400}
+.err{background:var(--rbg);border:1.5px solid rgba(229,57,53,.25);border-radius:8px;padding:10px 14px;font-size:12px;font-weight:500;color:var(--r);margin-top:10px;display:none;animation:sd .2s ease}
+@keyframes sd{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.res{margin-top:18px;background:var(--card);border:1.5px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:var(--sh);opacity:0;transform:translateY(10px);transition:opacity .3s,transform .3s;pointer-events:none}
+.res.show{opacity:1;transform:none;pointer-events:all}
+.res-hd{padding:11px 18px;border-bottom:1.5px solid var(--border);font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+.res-hd.r{color:var(--r)}.res-hd.r .dot{background:var(--r)}
+.res-hd.g{color:var(--g)}.res-hd.g .dot{background:var(--g)}
+.dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.row{display:flex;justify-content:space-between;align-items:center;padding:11px 18px;border-bottom:1.5px solid var(--border);transition:background .15s}
+.row:last-child{border-bottom:none}
+.row:hover{background:rgba(0,0,0,.02)}
+[data-theme=dark] .row:hover{background:rgba(255,255,255,.025)}
+.rl{font-size:12px;color:var(--muted);font-weight:500}
+.rv{font-size:14px;color:var(--dim);font-weight:600}
+.rv.big{font-family:'Outfit',sans-serif;font-size:28px;font-weight:800;color:var(--r)}
+.rv.g{color:var(--g)}
+.badge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700;letter-spacing:.06em;margin-left:6px;vertical-align:middle;background:var(--gbg);color:var(--g)}
+.sum-wrap{padding:0 18px 14px;border-bottom:1.5px solid var(--border)}
+.sum{padding:10px 12px;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;font-size:12px;font-weight:500;color:var(--muted);line-height:1.9}
+.sum b{color:var(--text)}.sum .r{color:var(--r)}.sum .g{color:var(--g)}
+.rr-meter{padding:12px 18px 14px;border-bottom:1.5px solid var(--border)}
+.rr-meta{display:flex;justify-content:space-between;font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:8px}
+.rr-meta .v{color:var(--g)}
+.rr-track{height:6px;background:var(--border);border-radius:99px;overflow:hidden}
+.rr-fill{height:100%;background:linear-gradient(90deg,var(--r),var(--g));width:0;border-radius:99px;transition:width .5s cubic-bezier(.4,0,.2,1)}
+.tgt{display:none}
+footer{margin-top:18px;text-align:center;font-size:10px;color:var(--border);letter-spacing:.1em;text-transform:uppercase}
+@media(max-width:400px){.rv.big{font-size:22px}input[type=number]{font-size:18px}h1{font-size:28px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Position<br><span>Sizer</span></h1>
+      <p class="sub">NSE / BSE · Risk-First</p>
+    </div>
+    <button class="thm-btn" id="thm" onclick="toggleTheme()">☽ Dark</button>
+  </header>
 
+  <div class="lbl">Stop Loss Mode</div>
+  <div class="tog">
+    <button id="bP" class="on" onclick="setMode('price')">₹ SL Price</button>
+    <button id="bPct" onclick="setMode('pct')">% SL Percent</button>
+  </div>
+
+  <div class="card">
+    <div class="card-lbl">Buy Price (₹)</div>
+    <input type="number" id="buyPrice" placeholder="e.g. 1500" min="0" step="any" oninput="calc()"/>
+  </div>
+  <div class="card" id="cP">
+    <div class="card-lbl">Stop Loss Price (₹)</div>
+    <input type="number" id="slPrice" placeholder="e.g. 1440" min="0" step="any" oninput="calc()"/>
+  </div>
+  <div class="card" id="cPct" style="display:none">
+    <div class="card-lbl">Stop Loss (%)</div>
+    <input type="number" id="slPct" placeholder="e.g. 4" min="0" max="100" step="any" oninput="calc()"/>
+  </div>
+  <div class="card">
+    <div class="card-lbl">Max Loss I Can Handle (₹)</div>
+    <input type="number" id="maxLoss" placeholder="e.g. 2000" min="0" step="any" oninput="calc()"/>
+  </div>
+  <div class="card">
+    <div class="card-lbl">Target Price (₹) <span class="opt">OPTIONAL</span></div>
+    <input type="number" id="target" placeholder="e.g. 1620" min="0" step="any" oninput="calc()"/>
+  </div>
+
+  <div class="err" id="err"></div>
+
+  <div class="res" id="res">
+    <div class="res-hd r"><span class="dot"></span>Position Analysis</div>
+    <div class="row"><span class="rl">SL Price</span>         <span class="rv"     id="rSL">—</span></div>
+    <div class="row"><span class="rl">SL %</span>             <span class="rv"     id="rSLp">—</span></div>
+    <div class="row"><span class="rl">Risk / Share</span>     <span class="rv"     id="rRPS">—</span></div>
+    <div class="row"><span class="rl">Shares to Buy</span>    <span class="rv big" id="rSh">—</span></div>
+    <div class="row"><span class="rl">Capital Required</span> <span class="rv"     id="rCap">—</span></div>
+    <div class="row"><span class="rl">Actual Max Risk</span>  <span class="rv"     id="rRisk">—</span></div>
+    <div class="sum-wrap"><div class="sum" id="sumBox"></div></div>
+
+    <div class="tgt" id="tgt">
+      <div class="res-hd g"><span class="dot"></span>Profit Analysis</div>
+      <div class="row"><span class="rl">Target Price</span>   <span class="rv g" id="rT">—</span></div>
+      <div class="row"><span class="rl">Profit / Share</span> <span class="rv g" id="rPPS">—</span></div>
+      <div class="row"><span class="rl">Total Profit</span>   <span class="rv g" id="rTP">—</span></div>
+      <div class="row"><span class="rl">Return %</span>       <span class="rv g" id="rRet">—</span></div>
+      <div class="row"><span class="rl">Risk : Reward</span>  <span class="rv g" id="rRR">—</span></div>
+      <div class="rr-meter">
+        <div class="rr-meta"><span>R:R Meter</span><span class="v" id="rrL">—</span></div>
+        <div class="rr-track"><div class="rr-fill" id="rrF"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>Educational use only · Not SEBI advice</footer>
+</div>
+
+<script>
+let mode='price', dark=window.matchMedia('(prefers-color-scheme: dark)').matches;
+if(dark){document.documentElement.setAttribute('data-theme','dark');document.getElementById('thm').textContent='☀ Light'}
+
+function toggleTheme(){
+  dark=!dark;
+  document.documentElement.setAttribute('data-theme',dark?'dark':'light');
+  document.getElementById('thm').textContent=dark?'☀ Light':'☽ Dark';
+}
+
+function setMode(m){
+  mode=m;
+  document.getElementById('bP').className=m==='price'?'on':'';
+  document.getElementById('bPct').className=m==='pct'?'on':'';
+  document.getElementById('cP').style.display=m==='price'?'block':'none';
+  document.getElementById('cPct').style.display=m==='pct'?'block':'none';
+  m==='price'?document.getElementById('slPct').value='':document.getElementById('slPrice').value='';
+  calc();
+}
+
+const rs=n=>'₹'+n.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+const f=(id,v)=>document.getElementById(id).textContent=v;
+const fh=(id,v)=>document.getElementById(id).innerHTML=v;
+const gv=id=>{const v=parseFloat(document.getElementById(id).value);return isNaN(v)?NaN:v};
+
+function showErr(m){const e=document.getElementById('err');e.innerHTML='⚠ '+m;e.style.display='block';document.getElementById('res').classList.remove('show')}
+function clrErr(){document.getElementById('err').style.display='none'}
+
+function calc(){
+  const buy=gv('buyPrice'), ml=gv('maxLoss');
+  const tv=document.getElementById('target').value.trim();
+  const tgt=tv!==''?parseFloat(tv):NaN;
+
+  let sl=NaN;
+  if(mode==='price') sl=gv('slPrice');
+  else{const p=gv('slPct');sl=(!isNaN(buy)&&!isNaN(p))?buy*(1-p/100):NaN}
+
+  if(isNaN(buy)||isNaN(sl)||isNaN(ml)){clrErr();document.getElementById('res').classList.remove('show');return}
+  if(buy<=0)  return showErr('Buy price must be > ₹0');
+  if(sl<=0)   return showErr('SL must be > ₹0');
+  if(ml<=0)   return showErr('Max loss must be > ₹0');
+  if(sl>=buy) return showErr('SL must be strictly below buy price');
+
+  const rps=buy-sl, shares=Math.floor(ml/rps);
+  if(shares<=0) return showErr('Max loss too small for 1 share. Increase max loss or widen SL.');
+
+  const cap=shares*buy, ar=shares*rps, slp=(rps/buy)*100;
+  clrErr();
+
+  f('rSL',rs(sl)); f('rSLp',slp.toFixed(2)+'%'); f('rRPS',rs(rps));
+  f('rSh',shares.toLocaleString('en-IN')); f('rCap',rs(cap));
+  fh('rRisk',rs(ar)+'<span class="badge">WITHIN LIMIT</span>');
+
+  let sum=`Buy <b>${shares.toLocaleString('en-IN')} shares</b> @ <b>${rs(buy)}</b> &middot; SL <span class="r">${rs(sl)}</span> &middot; Risk <span class="r">${rs(ar)}</span>`;
+
+  const tEl=document.getElementById('tgt');
+  if(!isNaN(tgt)&&tgt>buy){
+    const pps=tgt-buy, tp=shares*pps, ret=(pps/buy)*100, rr=pps/rps;
+    f('rT',rs(tgt)); f('rPPS',rs(pps)); f('rTP',rs(tp));
+    f('rRet',ret.toFixed(2)+'%'); f('rRR','1 : '+rr.toFixed(2));
+    document.getElementById('rrF').style.width=Math.min((rr/5)*100,100)+'%';
+    document.getElementById('rrL').textContent='1 : '+rr.toFixed(2);
+    sum+=` &middot; Target <span class="g">${rs(tgt)}</span> &middot; Profit <span class="g">${rs(tp)}</span> &middot; R:R <span class="g">1:${rr.toFixed(2)}</span>`;
+    tEl.style.display='block';
+  } else tEl.style.display='none';
+
+  fh('sumBox',sum);
+  document.getElementById('res').classList.add('show');
+}
+</script>
+</body>
+    </html>
